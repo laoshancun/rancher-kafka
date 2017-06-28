@@ -17,7 +17,7 @@ KAFKA_SSL_CONFIG=""
 KAFKA_SSL_LISTENER=""
 KAFKA_SSL_AUTH=${KAFKA_SSL_AUTH:-"none"}
 
-if [ "KAFKA_SSL" == "true" ]; then
+if [ "$KAFKA_SSL" == "true" ]; then
     KAFKA_SSL_CONFIG="
         ssl.keystore.location=/opt/kafka/ssl/kafka.server.keystore.jks
         ssl.keystore.password=${KAFKA_KEYSTORE_PASSWORD}
