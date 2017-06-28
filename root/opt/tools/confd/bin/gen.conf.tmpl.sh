@@ -38,7 +38,7 @@ cat << EOF > ${SERVICE_VOLUME}/confd/etc/templates/server.properties.tmpl
 broker.id={{getv "/self/container/service_index"}}
 ############################# Socket Server Settings #############################
 listeners=${KAFKA_LISTENER}
-advertised.listeners=${KAFKA_ADVERTISE_LISTENER}
+advertised.listeners=${KAFKA_ADVERTISE_LISTENER},PLAINTEXT://${HOSTNAME}:${KAFKA_ADVERTISE_PORT}
 num.network.threads=3
 num.io.threads=8
 socket.send.buffer.bytes=102400
