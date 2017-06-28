@@ -11,6 +11,25 @@ KAFKA_OFFSET_RETENTION_MINUTES=${KAFKA_OFFSET_RETENTION_MINUTES:-"1440"}
 KAFKA_NUM_PARTITIONS=${KAFKA_NUM_PARTITIONS:-"1"}
 KAFKA_ZK_PORT=${KAFKA_ZK_PORT:-"2181"}
 KAFKA_EXT_IP=${KAFKA_EXT_IP:-""}
+KAFKA_SSL=${KAFKA_SSL:-"false"}
+KAFKA_KEYSTORE_PASSWORD=${KAFKA_KEYSTORE_PASSWORD:-""}
+KAFKA_SSL_CONFIG=""
+KAFKA_SSL_AUTH=${KAFKA_SSL_AUTH:-"none"}
+
+if []; then
+    KAFKA_SSL_CONFIG="
+        ssl.keystore.location=/opt/kafka/ssl/kafka.server.keystore.jks
+        ssl.keystore.password=${KAFKA_KEYSTORE_PASSWORD}
+        ssl.key.password=${KAFKA_KEYSTORE_PASSWORD}
+        ssl.truststore.location=/opt/kafka/ssl/kafka.server.truststore.jks
+        ssl.truststore.password=${KAFKA_KEYSTORE_PASSWORD}
+        ssl.keystore.type=JKS
+        ssl.truststore.type=JKS
+        ssl.enabled.protocols = TLSv1.2 TLSv1.1 TLSv1
+        ssl.client.auth = ${KAFKA_SSL_AUTH}
+        ssl.cipher.suites=ECDHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES128-GCM-SHA256:DHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES128-GCM-SHA256:ECDHE-RSA-AES256-SHA384:ECDHE-RSA-AES128-SHA256:ECDHE-RSA-AES256-SHA:ECDHE-RSA-AES128-SHA:DHE-RSA-AES256-SHA256:DHE-RSA-AES128-SHA256:DHE-RSA-AES256-SHA:DHE-RSA-AES128-SHA:ECDHE-RSA-DES-CBC3-SHA:EDH-RSA-DES-CBC3-SHA:AES256-GCM-SHA384:AES128-GCM-SHA256:AES256-SHA256:AES128-SHA256:AES256-SHA:AES128-SHA:DES-CBC3-SHA:HIGH:!aNULL:!eNULL:!EXPORT:!DES:!MD5:!PSK:!RC4
+    "
+fi
 
 if [ "$ADVERTISE_PUB_IP" == "true" ]; then
     KAFKA_ADVERTISE_IP='{{getv "/self/host/agent_ip"}}'
@@ -18,6 +37,8 @@ else
     KAFKA_ADVERTISE_IP='{{getv "/self/container/primary_ip"}}'
 fi
 KAFKA_ADVERTISE_LISTENER=${KAFKA_ADVERTISE_LISTENER:-"PLAINTEXT://"${KAFKA_ADVERTISE_IP}":"${KAFKA_ADVERTISE_PORT}}
+
+
 
 cat << EOF > ${SERVICE_VOLUME}/confd/etc/conf.d/server.properties.toml
 [template]
@@ -37,8 +58,9 @@ cat << EOF > ${SERVICE_VOLUME}/confd/etc/templates/server.properties.tmpl
 ############################# Server Basics #############################
 broker.id={{getv "/self/container/service_index"}}
 ############################# Socket Server Settings #############################
-listeners=${KAFKA_LISTENER}
-advertised.listeners=${KAFKA_ADVERTISE_LISTENER},PLAINTEXT://${HOSTNAME}:9093
+listeners=${KAFKA_LISTENER},SSL://${HOSTNAME}:9093
+advertised.listeners=${KAFKA_ADVERTISE_LISTENER},SSL://${HOSTNAME}:9093
+${KAFKA_SSL_CONFIG}
 num.network.threads=3
 num.io.threads=8
 socket.send.buffer.bytes=102400
