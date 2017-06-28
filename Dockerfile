@@ -1,5 +1,5 @@
 FROM rawmind/rancher-tools:3.5-3
-MAINTAINER Raul Sanchez <rawmind@gmail.com>
+MAINTAINER Laoshancun <laoshancun@gmail.com>
 
 #Set environment
 ENV SERVICE_NAME=kafka \
