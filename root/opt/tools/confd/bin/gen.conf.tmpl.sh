@@ -14,8 +14,14 @@ KAFKA_EXT_IP=${KAFKA_EXT_IP:-""}
 KAFKA_SSL=${KAFKA_SSL:-"false"}
 KAFKA_KEYSTORE_PASSWORD=${KAFKA_KEYSTORE_PASSWORD:-""}
 KAFKA_SSL_CONFIG=""
-KAFKA_SSL_LISTENER=""
 KAFKA_SSL_AUTH=${KAFKA_SSL_AUTH:-"none"}
+
+if [ "$ADVERTISE_PUB_IP" == "true" ]; then
+    KAFKA_ADVERTISE_IP='{{getv "/self/host/agent_ip"}}'
+else
+    KAFKA_ADVERTISE_IP='{{getv "/self/container/primary_ip"}}'
+fi
+KAFKA_ADVERTISE_LISTENER=${KAFKA_ADVERTISE_LISTENER:-"PLAINTEXT://"${KAFKA_ADVERTISE_IP}":"${KAFKA_ADVERTISE_PORT}}
 
 if [ "$KAFKA_SSL" == "true" ]; then
     KAFKA_SSL_CONFIG="
@@ -29,17 +35,9 @@ ssl.truststore.type=JKS
 ssl.enabled.protocols =TLSv1.2,TLSv1.1,TLSv1
 ssl.client.auth = ${KAFKA_SSL_AUTH}
     "
-    KAFKA_SSL_LISTENER=",SSL://${HOSTNAME}:9093"
+    KAFKA_LISTENER="${KAFKA_LISTENER},SSL://0.0.0.0:9093"
+    KAFKA_ADVERTISE_LISTENER="${KAFKA_ADVERTISE_LISTENER},SSL://${HOSTNAME}:9093"
 fi
-
-if [ "$ADVERTISE_PUB_IP" == "true" ]; then
-    KAFKA_ADVERTISE_IP='{{getv "/self/host/agent_ip"}}'
-else
-    KAFKA_ADVERTISE_IP='{{getv "/self/container/primary_ip"}}'
-fi
-KAFKA_ADVERTISE_LISTENER=${KAFKA_ADVERTISE_LISTENER:-"PLAINTEXT://"${KAFKA_ADVERTISE_IP}":"${KAFKA_ADVERTISE_PORT}}
-
-
 
 cat << EOF > ${SERVICE_VOLUME}/confd/etc/conf.d/server.properties.toml
 [template]
@@ -59,8 +57,8 @@ cat << EOF > ${SERVICE_VOLUME}/confd/etc/templates/server.properties.tmpl
 ############################# Server Basics #############################
 broker.id={{getv "/self/container/service_index"}}
 ############################# Socket Server Settings #############################
-listeners=${KAFKA_LISTENER}${KAFKA_SSL_LISTENER}
-advertised.listeners=${KAFKA_ADVERTISE_LISTENER}${KAFKA_SSL_LISTENER}
+listeners=${KAFKA_LISTENER}
+advertised.listeners=${KAFKA_ADVERTISE_LISTENER}
 ${KAFKA_SSL_CONFIG}
 num.network.threads=3
 num.io.threads=8
