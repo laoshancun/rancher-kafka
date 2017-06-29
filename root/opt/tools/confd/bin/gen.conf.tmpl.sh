@@ -19,15 +19,15 @@ KAFKA_SSL_AUTH=${KAFKA_SSL_AUTH:-"none"}
 
 if [ "$KAFKA_SSL" == "true" ]; then
     KAFKA_SSL_CONFIG="
-        ssl.keystore.location=/opt/kafka/ssl/kafka.server.keystore.jks
-        ssl.keystore.password=${KAFKA_KEYSTORE_PASSWORD}
-        ssl.key.password=${KAFKA_KEYSTORE_PASSWORD}
-        ssl.truststore.location=/opt/kafka/ssl/kafka.server.truststore.jks
-        ssl.truststore.password=${KAFKA_KEYSTORE_PASSWORD}
-        ssl.keystore.type=JKS
-        ssl.truststore.type=JKS
-        ssl.enabled.protocols =TLSv1.2,TLSv1.1,TLSv1
-        ssl.client.auth = ${KAFKA_SSL_AUTH}
+ssl.keystore.location=/opt/kafka/ssl/server.keystore.jks
+ssl.keystore.password=${KAFKA_KEYSTORE_PASSWORD}
+ssl.key.password=${KAFKA_KEYSTORE_PASSWORD}
+ssl.truststore.location=/opt/kafka/ssl/server.truststore.jks
+ssl.truststore.password=${KAFKA_KEYSTORE_PASSWORD}
+ssl.keystore.type=JKS
+ssl.truststore.type=JKS
+ssl.enabled.protocols =TLSv1.2,TLSv1.1,TLSv1
+ssl.client.auth = ${KAFKA_SSL_AUTH}
     "
     KAFKA_SSL_LISTENER=",SSL://${HOSTNAME}:9093"
 fi
