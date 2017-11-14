@@ -15,6 +15,9 @@ KAFKA_SSL=${KAFKA_SSL:-"false"}
 KAFKA_KEYSTORE_PASSWORD=${KAFKA_KEYSTORE_PASSWORD:-""}
 KAFKA_SSL_CONFIG=""
 KAFKA_SSL_AUTH=${KAFKA_SSL_AUTH:-"none"}
+KAFKA_AUTO_CREATE_TOPICS=${KAFKA_AUTO_CREATE_TOPICS:-"true"}
+KAFKA_REPLICATION_FACTOR=${KAFKA_REPLICATION_FACTOR:-1}
+
 
 if [ "$ADVERTISE_PUB_IP" == "true" ]; then
     KAFKA_ADVERTISE_IP='{{getv "/self/host/agent_ip"}}'
@@ -70,6 +73,8 @@ log.dirs=${KAFKA_LOG_DIRS}
 num.partitions=${KAFKA_NUM_PARTITIONS}
 num.recovery.threads.per.data.dir=1
 delete.topic.enable=${KAFKA_DELETE_TOPICS}
+auto.create.topics.enable=${KAFKA_AUTO_CREATE_TOPICS}
+default.replication.factor=${KAFKA_REPLICATION_FACTOR}
 ############################# Log Flush Policy #############################
 #log.flush.interval.messages=10000
 #log.flush.interval.ms=1000
